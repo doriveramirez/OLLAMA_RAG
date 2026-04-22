@@ -1,80 +1,68 @@
-Repositorio del proyecto para acceder a todos los archivos:
+Repositorio del proyecto:
 https://github.com/doriveramirez/OLLAMA_RAG
 
-ARCHIVOS IMPORTANTES PARA CORREGIR EL PROYECTO OLLAMA_RAG
+GUÍA DE ARCHIVOS PRINCIPALES DEL PROYECTO OLLAMA_RAG
 
-Documento de apoyo recomendado para empezar:
+Documento general de apoyo:
 
 - Explicacion_completa_codigo_OLLAMA_RAG.pdf
-  Archivo explicativo extenso con el funcionamiento completo del proyecto y del codigo.
-  Es recomendable abrirlo al principio para entender rapidamente la arquitectura general
-  antes de revisar los scripts uno por uno.
+  Explica de forma detallada el funcionamiento completo del proyecto, la arquitectura,
+  el flujo de ejecución y el papel de cada archivo principal.
 
-Orden recomendado de revision:
+Orden de revisión sugerido:
 
 1. Explicacion_completa_codigo_OLLAMA_RAG.pdf
-   - Documento de apoyo completo con la explicacion detallada del codigo.
-   - Resume la arquitectura, el flujo de ejecucion y el papel de cada archivo.
-   - Muy util para situarse antes de corregir tecnicamente el proyecto.
+   - Documento de referencia general.
+   - Resume la estructura completa del proyecto y explica el código en detalle.
 
 2. README.md
-   - Archivo principal para entender la instalacion, la ejecucion y la estructura del proyecto.
-   - Relacionado con el criterio de "Documentacion y codigo".
+   - Resume la instalación, la ejecución y la estructura general del proyecto.
+   - Permite entender rápidamente cómo está organizada la entrega.
 
 3. clean_json.py
-   - Script de limpieza pedido explicitamente en la tarea.
-   - Aqui se ve como se descarga/lee el dataset, se filtran registros y se genera el JSON limpio.
-   - Relacionado con el criterio de "Limpieza del dataset".
+   - Script de limpieza del dataset.
+   - Descarga o lee el dataset, filtra registros no útiles y genera el archivo limpio.
 
 4. rag_utils.py
-   - Archivo clave porque contiene la logica real de limpieza, clasificacion por temas, deduplicacion,
-     seleccion balanceada de registros, chunking y utilidades compartidas.
-   - Es el mejor archivo para revisar el comportamiento tecnico de fondo del sistema.
-   - Relacionado con "Limpieza del dataset", "Criterios de seleccion del retriever" y parte del pipeline RAG.
+   - Archivo central de utilidades compartidas.
+   - Contiene la lógica de limpieza, clasificación por temas, deduplicación,
+     selección balanceada de registros, fragmentación en chunks y utilidades del sistema.
 
 5. train_clean.json
-   - Dataset limpio generado a partir del original.
-   - Sirve para comprobar el resultado final de la limpieza exigida en la tarea.
-   - Relacionado con el entregable "Dataset limpio".
+   - Resultado del proceso de limpieza.
+   - Permite comprobar directamente cómo ha quedado el dataset final.
 
 6. index_data.py
-   - Script de indexacion pedido explicitamente en la tarea.
-   - Aqui se ve como se crean los embeddings con Ollama y como se indexa el contenido en Chroma.
-   - Relacionado con "Indexacion en base de datos vectorial" y parte de la calidad del RAG.
+   - Script de indexación.
+   - Genera embeddings con Ollama e indexa el contenido limpio en la base vectorial Chroma.
 
 7. app.py
-   - Archivo principal de la aplicacion.
-   - Incluye el pipeline RAG, el retriever, la memoria conversacional, el prompt y la interfaz Gradio.
-   - Es el archivo mas importante para evaluar:
-     * calidad del RAG
-     * criterios de seleccion del retriever
-     * memoria de conversacion
-     * interfaz Gradio
+   - Aplicación principal del proyecto.
+   - Incluye el pipeline RAG, el retriever, la memoria conversacional,
+     el prompt del sistema y la interfaz Gradio.
 
 8. requirements.txt
-   - Dependencias necesarias para ejecutar el proyecto.
-   - Relacionado con el entregable de dependencias y la reproducibilidad.
+   - Lista de dependencias necesarias para ejecutar el proyecto.
 
 9. screenshots/01-inicio.png
 10. screenshots/02-respuesta-con-contexto.png
 11. screenshots/03-sin-informacion-suficiente.png
-   - Evidencias visuales de la aplicacion funcionando.
-   - Ayudan a revisar rapidamente la interfaz y el comportamiento del sistema sin tener que ejecutarlo primero.
+   - Capturas del proyecto en funcionamiento.
+   - Muestran la interfaz y distintos comportamientos del sistema.
 
 12. Explicacion_completa_codigo_OLLAMA_RAG.html
-   - Version HTML del documento explicativo completo.
-   - Puede ser util si se prefiere revisar el contenido desde navegador.
+   - Versión HTML del documento explicativo completo.
 
-Resumen rapido por entregables pedidos en la tarea:
+Resumen por entregables principales:
 
 - Script de limpieza: clean_json.py
-- Script de indexacion: index_data.py
-- Aplicacion principal: app.py
+- Script de indexación: index_data.py
+- Aplicación principal: app.py
 - Dependencias: requirements.txt
 - Dataset limpio: train_clean.json
-- Documentacion: README.md
+- Documentación: README.md
 
-Si el profesor solo quiere abrir lo imprescindible para corregir la tarea, los archivos minimos son:
+Archivos esenciales:
 
 - Explicacion_completa_codigo_OLLAMA_RAG.pdf
 - README.md
