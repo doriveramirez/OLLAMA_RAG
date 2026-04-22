@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Explicación completa del código - OLLAMA_RAG</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 14mm 18mm 14mm;
+    }
+    :root {
+      --bg: #f7f4ed;
+      --ink: #1f2937;
+      --muted: #5b6472;
+      --accent: #1f6f5c;
+      --accent-soft: #d9efe7;
+      --line: #d9dde6;
+      --panel: #ffffff;
+      --panel-2: #f0f5f2;
+      --code-bg: #0f172a;
+      --code-ink: #e5edf7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      margin: 0;
+      line-height: 1.45;
+      font-size: 11pt;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+    }
+    h1, h2, h3, h4 {
+      margin: 0 0 10px 0;
+      color: #13202b;
+      page-break-after: avoid;
+    }
+    h1 { font-size: 28pt; line-height: 1.08; }
+    h2 {
+      font-size: 18pt;
+      margin-top: 28px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--line);
+    }
+    h3 { font-size: 14pt; margin-top: 18px; }
+    h4 { font-size: 12pt; margin-top: 14px; }
+    p { margin: 0 0 10px 0; }
+    ul, ol { margin: 0 0 12px 18px; padding: 0; }
+    li { margin-bottom: 6px; }
+    .cover {
+      background: linear-gradient(145deg, #ffffff 0%, #eef5f0 100%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(28, 41, 51, 0.08);
+      margin-bottom: 20px;
+    }
+    .cover .eyebrow {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10pt;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 12pt;
+      margin-top: 10px;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .small { font-size: 9.5pt; color: var(--muted); }
+    .toc a { color: var(--accent); text-decoration: none; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      background: var(--panel);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #eef3f7; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 12px 0 18px;
+    }
+    .flow div {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .note {
+      background: #fff8dd;
+      border-left: 4px solid #d39b00;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+    .img-block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 12px 0 16px;
+    }
+    .img-block img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+    }
+    .code {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 12px;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8.5pt;
+      line-height: 1.42;
+      overflow: hidden;
+    }
+    .appendix-file { page-break-inside: avoid; margin-bottom: 22px; }
+    .pill-list span {
+      display: inline-block;
+      margin: 0 6px 6px 0;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 9.5pt;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="cover">
+    <div class="eyebrow">Documentación técnica exhaustiva</div>
+    <h1>Explicación completa del código del proyecto <code>OLLAMA_RAG</code></h1>
+    <p class="subtitle">Este documento explica de forma detallada toda la lógica implementada en el proyecto: limpieza del dataset, clasificación temática heurística, generación de embeddings, construcción del índice vectorial, pipeline RAG con LangChain y Ollama, e interfaz local con Gradio.</p>
+    <div class="meta">
+      <div class="card"><strong>Proyecto</strong><br><span class="small">Sistema RAG con Ollama, LangChain y Gradio</span></div>
+      <div class="card"><strong>Código explicado</strong><br><span class="small">8 archivos fuente y de configuración</span></div>
+      <div class="card"><strong>Entrega</strong><br><span class="small">Documento PDF con anexo de código completo</span></div>
+    </div>
+  </section>
+
+  <section class="card toc">
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#vision-general">Visión general del sistema</a></li>
+      <li><a href="#mapa-archivos">Mapa completo de archivos</a></li>
+      <li><a href="#flujo-global">Flujo de ejecución de extremo a extremo</a></li>
+      <li><a href="#configuracion">Archivos de configuración y dependencias</a></li>
+      <li><a href="#clean-json">Explicación completa de <code>clean_json.py</code></a></li>
+      <li><a href="#index-data">Explicación completa de <code>index_data.py</code></a></li>
+      <li><a href="#rag-utils">Explicación completa de <code>rag_utils.py</code></a></li>
+      <li><a href="#app">Explicación completa de <code>app.py</code></a></li>
+      <li><a href="#decisiones">Decisiones de diseño, límites y mejoras posibles</a></li>
+      <li><a href="#anexo">Anexo: código fuente completo</a></li>
+    </ol>
+  </section>
+
+  <section id="vision-general">
+    <h2>1. Visión general del sistema</h2>
+    <p>El proyecto implementa un sistema RAG local orientado a transcripciones de Khan Academy. El objetivo es permitir que un usuario formule preguntas en lenguaje natural y que el sistema responda únicamente con información recuperada del dataset limpio. Toda la cadena se ejecuta en local: limpieza, clasificación temática, embeddings, búsqueda semántica y generación de respuestas.</p>
+    <div class="flow">
+      <div>Dataset bruto de Hugging Face</div>
+      <div>Limpieza y normalización</div>
+      <div>Clasificación temática y selección</div>
+      <div>Embeddings + Chroma</div>
+      <div>Chat RAG en Gradio</div>
+    </div>
+    <div class="grid-3">
+      <div class="card"><strong>Entrada</strong><p>Transcripciones en formato JSON/VTT con ruido, timestamps y campos extra.</p></div>
+      <div class="card"><strong>Transformación</strong><p>Se limpian las transcripciones, se filtran registros pobres y se dividen en fragmentos para indexarlos.</p></div>
+      <div class="card"><strong>Salida</strong><p>Una app Gradio que mantiene historial conversacional y muestra fuentes recuperadas.</p></div>
+    </div>
+    <div class="note"><strong>Idea clave:</strong> el proyecto separa claramente tres responsabilidades: preparación de datos, indexación vectorial y explotación del índice mediante una interfaz conversacional.</div>
+  </section>
+
+  <section id="mapa-archivos">
+    <h2>2. Mapa completo de archivos</h2>
+    <table>
+      <thead>
+        <tr><th>Archivo</th><th>Líneas</th><th>Rol dentro del sistema</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>.gitignore</td><td>6</td></tr>
+<tr><td>.env.example</td><td>4</td></tr>
+<tr><td>requirements.txt</td><td>10</td></tr>
+<tr><td>clean_json.py</td><td>87</td></tr>
+<tr><td>index_data.py</td><td>100</td></tr>
+<tr><td>rag_utils.py</td><td>515</td></tr>
+<tr><td>app.py</td><td>389</td></tr>
+<tr><td>README.md</td><td>134</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li><code>.gitignore</code> evita subir entorno virtual, cachés, índice vectorial y variables sensibles.</li>
+      <li><code>.env.example</code> documenta las variables de entorno que controlan la conexión a Ollama y los modelos por defecto.</li>
+      <li><code>requirements.txt</code> fija las bibliotecas necesarias para ejecutar el proyecto.</li>
+      <li><code>clean_json.py</code> descarga o lee el dataset y produce <code>train_clean.json</code>.</li>
+      <li><code>index_data.py</code> crea el almacén vectorial persistente con Chroma y Ollama embeddings.</li>
+      <li><code>rag_utils.py</code> concentra la lógica compartida: limpieza, deduplicación, clasificación, chunking, selección de modelos y formateo de contexto.</li>
+      <li><code>app.py</code> define el pipeline RAG, el prompt, la memoria conversacional y la interfaz Gradio.</li>
+      <li><code>README.md</code> describe uso, instalación, ejecución y evidencias.</li>
+    </ul>
+  </section>
+
+  <section id="flujo-global">
+    <h2>3. Flujo de ejecución de extremo a extremo</h2>
+    <h3>3.1 Flujo de preparación</h3>
+    <ol>
+      <li>Se ejecuta <code>clean_json.py</code>.</li>
+      <li>El script descarga el split indicado de Hugging Face o lee un JSON local.</li>
+      <li>Cada registro pasa por <code>normalize_record()</code>, que limpia texto, normaliza campos y asigna tema.</li>
+      <li>Se eliminan duplicados y, si procede, se selecciona un subconjunto balanceado por tema.</li>
+      <li>El resultado se serializa a <code>train_clean.json</code>.</li>
+    </ol>
+    <h3>3.2 Flujo de indexación</h3>
+    <ol>
+      <li>Se ejecuta <code>index_data.py</code>.</li>
+      <li>El script lee <code>train_clean.json</code> y convierte cada transcripción en documentos fragmentados.</li>
+      <li>Se crea un objeto <code>OllamaEmbeddings</code> y una colección persistente <code>Chroma</code>.</li>
+      <li>Los documentos se insertan por lotes y se guarda un manifiesto con metadatos del índice.</li>
+    </ol>
+    <h3>3.3 Flujo de consulta</h3>
+    <ol>
+      <li>El usuario abre <code>app.py</code> y escribe una pregunta.</li>
+      <li>La aplicación carga el índice Chroma y aplica búsqueda semántica con filtros opcionales.</li>
+      <li>Los fragmentos recuperados se convierten en bloque de contexto mediante <code>build_context_block()</code>.</li>
+      <li>LangChain compone el prompt final usando sistema + historial + pregunta actual.</li>
+      <li>Ollama genera la respuesta con el modelo elegido.</li>
+      <li>La interfaz actualiza el chat y muestra las fuentes usadas.</li>
+    </ol>
+  </section>
+
+  <section id="configuracion">
+    <h2>4. Archivos de configuración y dependencias</h2>
+    <h3>4.1 <code>.gitignore</code></h3>
+    <p>Este archivo protege el repositorio de artefactos locales y pesados. Excluye el entorno virtual, cachés de Python, la carpeta persistente del vector store y el archivo <code>.env</code>, que podría contener configuraciones sensibles del entorno.</p>
+    <ul>
+      <li><code>.venv/</code>: evita subir paquetes y ejecutables locales.</li>
+      <li><code>__pycache__/</code> y <code>.pytest_cache/</code>: evitan archivos temporales.</li>
+      <li><code>vectorstore/</code>: impide versionar la base vectorial generada en local.</li>
+      <li><code>.env</code>: evita exponer configuración personalizada del usuario.</li>
+    </ul>
+
+    <h3>4.2 <code>.env.example</code></h3>
+    <p>Actúa como plantilla. No se usa directamente, pero enseña qué variables acepta el proyecto y qué valores esperan las partes principales del sistema. Sirve para replicar el entorno de ejecución.</p>
+    <ul>
+      <li><code>OLLAMA_BASE_URL</code>: dirección del servidor de Ollama.</li>
+      <li><code>OLLAMA_LLM_MODEL</code>: modelo generativo para responder preguntas.</li>
+      <li><code>OLLAMA_EMBED_MODEL</code>: modelo de embeddings usado al indexar o consultar.</li>
+    </ul>
+
+    <h3>4.3 <code>requirements.txt</code></h3>
+    <p>Fija dependencias concretas para minimizar diferencias de comportamiento entre entornos. Cada paquete cumple un papel claro.</p>
+    <div class="pill-list">
+      <span>chromadb</span>
+      <span>datasets</span>
+      <span>gradio</span>
+      <span>langchain</span>
+      <span>langchain-chroma</span>
+      <span>langchain-community</span>
+      <span>langchain-ollama</span>
+      <span>langchain-text-splitters</span>
+      <span>python-dotenv</span>
+    </div>
+    <ul>
+      <li><code>datasets</code> permite descargar y materializar el dataset de Hugging Face.</li>
+      <li><code>langchain</code> aporta la composición del prompt, mensajes y parser de salida.</li>
+      <li><code>langchain-ollama</code> conecta LangChain con modelos locales servidos por Ollama.</li>
+      <li><code>langchain-chroma</code> encapsula el acceso a la base vectorial Chroma.</li>
+      <li><code>langchain-text-splitters</code> divide transcripciones largas en chunks.</li>
+      <li><code>gradio</code> construye la interfaz del chatbot.</li>
+      <li><code>python-dotenv</code> carga variables desde archivo <code>.env</code>.</li>
+    </ul>
+
+    <h3>4.4 <code>README.md</code></h3>
+    <p>Aunque no es lógica ejecutable, forma parte importante de la solución. Documenta instalación, flujo de uso, variables de entorno y capturas de funcionamiento. En términos de ingeniería, este archivo es el punto de entrada humano al proyecto.</p>
+  </section>
+
+  <section id="clean-json">
+    <h2>5. Explicación completa de <code>clean_json.py</code></h2>
+    <p>Este script es el primer escalón del pipeline. Su misión es transformar el dataset original en una versión utilizable para RAG: homogénea, limpia, con campos relevantes y con una etiqueta temática útil para filtrar después en la app.</p>
+
+    <h3>5.1 Importaciones</h3>
+    <ul>
+      <li><code>argparse</code> se usa para convertir el script en una herramienta de línea de comandos configurable.</li>
+      <li><code>Counter</code> permite resumir cuántos registros quedaron por tema al final del proceso.</li>
+      <li><code>Path</code> estandariza rutas de archivo.</li>
+      <li><code>load_dataset</code> descarga el dataset remoto desde Hugging Face.</li>
+      <li>Desde <code>rag_utils</code> se reutiliza toda la lógica de normalización y escritura.</li>
+    </ul>
+
+    <h3>5.2 <code>parse_args()</code></h3>
+    <p>Define la interfaz CLI del script. Es importante porque convierte el limpiador en una herramienta reproducible, no en un script rígido.</p>
+    <ul>
+      <li><code>--dataset-name</code> y <code>--split</code> permiten elegir dataset y partición.</li>
+      <li><code>--input-json</code> permite saltarse Hugging Face y usar un archivo local.</li>
+      <li><code>--output</code> fija la ruta del JSON limpio.</li>
+      <li><code>--max-records</code> limita el tamaño del subconjunto final.</li>
+      <li><code>--min-words</code> define el umbral mínimo de utilidad para una transcripción.</li>
+      <li><code>--seed</code> hace reproducible la selección balanceada por tema.</li>
+    </ul>
+
+    <h3>5.3 <code>load_source_records(args)</code></h3>
+    <p>Centraliza la lectura de la fuente de datos. Si el usuario pasa un JSON local, el script acepta dos formatos: una lista directa o un objeto con clave <code>train</code>. Si no se proporciona <code>--input-json</code>, se usa <code>load_dataset()</code> y se materializa el split completo como una lista de diccionarios de Python.</p>
+    <div class="note"><strong>Ventaja:</strong> el mismo pipeline sirve tanto para desarrollo con Hugging Face como para repetir experimentos offline con archivos previamente descargados.</div>
+
+    <h3>5.4 <code>main()</code></h3>
+    <p>Es el orquestador real de la limpieza. El flujo interno es lineal y fácil de seguir:</p>
+    <ol>
+      <li>Recoge argumentos.</li>
+      <li>Carga registros crudos.</li>
+      <li>Aplica <code>normalize_record()</code> uno a uno.</li>
+      <li>Descarta <code>None</code>, que representa registros inválidos.</li>
+      <li>Deduplica con <code>deduplicate_records()</code>.</li>
+      <li>Selecciona subconjunto con <code>choose_balanced_subset()</code>.</li>
+      <li>Escribe el JSON final con <code>write_json()</code>.</li>
+      <li>Calcula estadísticas por tema para que el usuario valide visualmente el resultado.</li>
+    </ol>
+    <p>La filosofía del script es separar orquestación y lógica. Aquí casi no hay reglas de negocio complejas; la mayoría viven en <code>rag_utils.py</code>. Eso facilita mantenimiento y pruebas.</p>
+  </section>
+
+  <section id="index-data">
+    <h2>6. Explicación completa de <code>index_data.py</code></h2>
+    <p>Este archivo toma el dataset ya limpio y lo convierte en un índice vectorial persistente. Su responsabilidad no es decidir qué limpiar, sino preparar los datos para búsqueda semántica eficiente.</p>
+
+    <h3>6.1 Importaciones</h3>
+    <ul>
+      <li><code>argparse</code> para parametrizar la indexación.</li>
+      <li><code>time</code> para sellar el manifiesto con la fecha de creación.</li>
+      <li><code>Chroma</code> y <code>OllamaEmbeddings</code> para crear y poblar la base vectorial.</li>
+      <li>Desde <code>rag_utils</code> se reutilizan rutas por defecto, chunking, lectura del dataset y escritura del manifiesto.</li>
+    </ul>
+
+    <h3>6.2 <code>parse_args()</code></h3>
+    <p>Define los parámetros ajustables de la indexación.</p>
+    <ul>
+      <li><code>--input</code>: JSON limpio de entrada.</li>
+      <li><code>--persist-dir</code>: carpeta donde se escribirá Chroma.</li>
+      <li><code>--collection-name</code>: nombre lógico de la colección.</li>
+      <li><code>--chunk-size</code> y <code>--chunk-overlap</code>: controlan granularidad y solape de los fragmentos.</li>
+      <li><code>--embedding-model</code>: permite cambiar el modelo sin editar código.</li>
+      <li><code>--ollama-base-url</code>: permite apuntar a otro host de Ollama si fuera necesario.</li>
+    </ul>
+
+    <h3>6.3 <code>main()</code></h3>
+    <h4>Validación de entrada</h4>
+    <p>Antes de nada, comprueba que el JSON limpio existe. Si no existe, corta la ejecución con un mensaje claro, obligando a ejecutar primero <code>clean_json.py</code>.</p>
+
+    <h4>Carga y fragmentación</h4>
+    <p>Lee los registros limpios y llama a <code>build_documents()</code>. Esta función crea objetos <code>Document</code> de LangChain, uno por fragmento. Aquí sucede la traducción entre “transcripción limpia” y “unidad indexable”.</p>
+
+    <h4>Preparación segura del directorio</h4>
+    <p><code>ensure_safe_output_dir()</code> elimina el índice anterior y crea de nuevo la carpeta de salida, pero solo si la ruta está dentro del proyecto. Esta defensa evita borrar accidentalmente directorios ajenos por un error de configuración.</p>
+
+    <h4>Embeddings e inserción por lotes</h4>
+    <p>Se crea un objeto <code>OllamaEmbeddings</code> y una instancia de <code>Chroma</code>. Después, los documentos se insertan por lotes de 64. Este tamaño es un compromiso razonable: reduce overhead respecto a insertar uno a uno, pero sin crear lotes excesivamente grandes que puedan ser más frágiles.</p>
+
+    <h4>Manejo de errores</h4>
+    <p>Si Ollama no está levantado o el modelo no existe, el script captura la excepción y termina con un mensaje prescriptivo que sugiere el comando <code>ollama pull nomic-embed-text:latest</code>.</p>
+
+    <h4>Manifiesto</h4>
+    <p>Al final se genera <code>index_manifest.json</code>, que guarda metadatos operativos: número de registros, número de chunks, tamaño de fragmento, modelo de embeddings y URL de Ollama. La app usa este manifiesto como referencia al arrancar.</p>
+  </section>
+
+  <section id="rag-utils">
+    <h2>7. Explicación completa de <code>rag_utils.py</code></h2>
+    <p>Este es el archivo más importante del proyecto desde el punto de vista de reutilización. Contiene constantes, expresiones regulares, heurísticas y funciones compartidas por el limpiador, el indexador y la aplicación web.</p>
+
+    <h3>7.1 Constantes globales</h3>
+    <p>Las constantes evitan números mágicos y centralizan configuración común.</p>
+    <ul>
+      <li><code>DEFAULT_DATASET_NAME</code> y <code>DEFAULT_DATASET_SPLIT</code> fijan el origen por defecto del dataset.</li>
+      <li><code>DEFAULT_MIN_WORDS</code> define el umbral mínimo de utilidad de un registro.</li>
+      <li><code>DEFAULT_MAX_RECORDS</code> limita el subconjunto para desarrollo y demo.</li>
+      <li><code>DEFAULT_CHUNK_SIZE</code> y <code>DEFAULT_CHUNK_OVERLAP</code> regulan la fragmentación.</li>
+      <li><code>DEFAULT_COLLECTION_NAME</code>, <code>DEFAULT_CLEAN_PATH</code>, <code>DEFAULT_VECTORSTORE_DIR</code> y <code>DEFAULT_MANIFEST_NAME</code> normalizan nombres y rutas internas.</li>
+      <li><code>DEFAULT_OLLAMA_BASE_URL</code> fija la URL estándar del servidor local de Ollama.</li>
+      <li><code>TOPIC_ALL_LABEL</code> representa la opción de “sin filtro” en la interfaz.</li>
+    </ul>
+
+    <h3>7.2 Expresiones regulares</h3>
+    <p>Estas regex representan el núcleo de la limpieza textual.</p>
+    <ul>
+      <li><code>TIMESTAMP_PATTERN</code> detecta líneas de marcas de tiempo VTT.</li>
+      <li><code>CUE_INDEX_PATTERN</code> detecta índices numéricos de subtítulos.</li>
+      <li><code>TAG_PATTERN</code> elimina marcas como <code>[music]</code> o <code>[applause]</code>.</li>
+      <li><code>HTML_PATTERN</code> elimina etiquetas HTML incrustadas.</li>
+      <li><code>WHITESPACE_PATTERN</code> comprime espacios y saltos múltiples.</li>
+      <li><code>SENTENCE_SPLIT_PATTERN</code> separa frases para poder deduplicarlas de forma más semántica.</li>
+    </ul>
+
+    <h3>7.3 Diccionario <code>TOPIC_KEYWORDS</code></h3>
+    <p>Este diccionario implementa la clasificación temática heurística. Cada clave es una categoría de alto nivel y cada valor es una lista de palabras clave relacionadas. La función <code>infer_topic()</code> cuenta cuántas coincidencias tiene cada categoría en el título y un fragmento de la transcripción.</p>
+    <p>Esto no es un clasificador de machine learning. Es una regla local, transparente, barata y suficiente para habilitar un filtro temático en la interfaz sin necesidad de un segundo modelo.</p>
+
+    <h3>7.4 Funciones de limpieza y normalización</h3>
+    <h4><code>normalize_whitespace(text)</code></h4>
+    <p>Condensa secuencias de espacios en blanco en un único espacio y recorta extremos. Se usa en muchos puntos del proyecto para estabilizar cadenas antes de comparar o guardar.</p>
+
+    <h4><code>stable_text_id(*parts)</code></h4>
+    <p>Genera un identificador corto y estable a partir de varias cadenas concatenadas y hasheadas con SHA-1. No busca seguridad criptográfica, sino reproducibilidad y compacidad.</p>
+
+    <h4><code>dedupe_adjacent_sentences(text)</code></h4>
+    <p>Divide el texto por frases, normaliza cada frase y elimina repeticiones adyacentes. Esto es útil porque algunas transcripciones automáticas repiten líneas consecutivas.</p>
+
+    <h4><code>clean_transcript(raw_text)</code></h4>
+    <p>Es la función de limpieza más importante. Recorre línea por línea y descarta elementos sin valor semántico: cabeceras WEBVTT, metadatos, notas, timestamps y numeraciones. Después vuelve a limpiar el resultado total eliminando HTML, etiquetas entre corchetes, entidades HTML y guiones sueltos. Al final normaliza el espacio y elimina frases consecutivas repetidas.</p>
+    <div class="note"><strong>Resultado esperado:</strong> una transcripción corrida, limpia y apta para ser troceada e indexada.</div>
+
+    <h3>7.5 Clasificación y normalización de registros</h3>
+    <h4><code>infer_topic(title, content)</code></h4>
+    <p>Construye una bolsa de texto con el título y un preview de la transcripción. Calcula puntuaciones por categoría contando coincidencias de palabras clave. Devuelve el tema con mayor puntuación, aplica una regla especial para títulos cortos de vocabulario y, si no hay señales suficientes, cae en <code>General</code>.</p>
+
+    <h4><code>normalize_record(raw_record, min_words)</code></h4>
+    <p>Convierte un registro crudo del dataset en un registro limpio y homogéneo.</p>
+    <ul>
+      <li>Normaliza el título.</li>
+      <li>Limpia el contenido con <code>clean_transcript()</code>.</li>
+      <li>Extrae <code>video_url</code> como URL principal y conserva la URL original de subtítulos en <code>subtitle_url</code>.</li>
+      <li>Descarta registros sin título, sin contenido o con pocas palabras.</li>
+      <li>Calcula un identificador estable.</li>
+      <li>Devuelve un diccionario final con <code>id</code>, <code>title</code>, <code>content</code>, <code>url</code>, <code>subtitle_url</code>, <code>language</code>, <code>topic</code> y <code>word_count</code>.</li>
+    </ul>
+
+    <h4><code>deduplicate_records(records)</code></h4>
+    <p>Elimina duplicados usando preferentemente la URL como huella. Si no hay URL, usa un hash derivado de título y contenido. Así evita indexar varias veces el mismo vídeo o una transcripción prácticamente igual.</p>
+
+    <h4><code>choose_balanced_subset(records, max_records, seed)</code></h4>
+    <p>Si el número de registros supera el máximo deseado, agrupa por tema y selecciona de forma rotatoria un subconjunto balanceado. El uso de una semilla fija garantiza reproducibilidad.</p>
+
+    <h3>7.6 Construcción de documentos para LangChain</h3>
+    <h4><code>build_documents(records, chunk_size, chunk_overlap)</code></h4>
+    <p>Transforma los registros limpios en objetos <code>Document</code>. Usa <code>RecursiveCharacterTextSplitter</code> con una jerarquía de separadores que intenta partir antes por bloques grandes y solo recurre a separadores más finos si no queda otra. Cada chunk recibe un ID derivado del registro original y metadatos ricos que luego permiten filtrar y presentar fuentes en la app.</p>
+
+    <h3>7.7 Utilidades de JSON y manifiestos</h3>
+    <h4><code>write_json(path, payload)</code></h4>
+    <p>Crea la carpeta si no existe y serializa el contenido con indentación y UTF-8.</p>
+
+    <h4><code>read_json(path)</code></h4>
+    <p>Lee un JSON desde disco y lo materializa como estructura Python.</p>
+
+    <h4><code>load_clean_records(path)</code></h4>
+    <p>Asegura que el archivo limpio contiene realmente una lista. Si no, lanza un error explícito.</p>
+
+    <h4><code>load_index_manifest(vectorstore_dir)</code></h4>
+    <p>Intenta leer el manifiesto de indexación. Si aún no existe, devuelve <code>None</code>. La app usa esta convención para decidir si puede arrancar.</p>
+
+    <h3>7.8 Seguridad y directorios</h3>
+    <h4><code>ensure_safe_output_dir(path, project_root)</code></h4>
+    <p>Protege frente a borrados peligrosos. Resuelve la ruta final, comprueba que está dentro del proyecto y que no coincide con la raíz del mismo. Solo entonces elimina el contenido previo y recrea el directorio. Esta pequeña función evita errores graves de automatización.</p>
+
+    <h3>7.9 Descubrimiento de modelos de Ollama</h3>
+    <h4><code>list_installed_ollama_models()</code></h4>
+    <p>Ejecuta <code>ollama list</code> como subproceso y parsea la salida para devolver los nombres de modelos instalados localmente.</p>
+
+    <h4><code>pick_ollama_model(preferred_names, fallback)</code></h4>
+    <p>Intenta encontrar el mejor modelo disponible dentro de una lista preferida, primero por coincidencia exacta y luego por prefijo, usando un fallback si no encuentra ninguno.</p>
+
+    <h4><code>resolve_default_llm_model()</code> y <code>resolve_default_embedding_model()</code></h4>
+    <p>Estas funciones priorizan variables de entorno, luego metadatos ya conocidos del sistema y, finalmente, un mecanismo de autodetección basado en modelos instalados. Gracias a esto, la app arranca con menos fricción en máquinas distintas.</p>
+
+    <h3>7.10 Formateo del contexto recuperado</h3>
+    <h4><code>build_context_block(results)</code></h4>
+    <p>Convierte la lista de fragmentos recuperados en un bloque de texto estructurado para el prompt del LLM. Cada fuente incluye título, tema, relevancia, URL y contenido.</p>
+
+    <h4><code>format_sources_markdown(results)</code></h4>
+    <p>Genera la versión legible por humanos de esas mismas fuentes para mostrarla en Gradio. Incluye extractos, puntuación y metadatos visibles en la interfaz.</p>
+  </section>
+
+  <section id="app">
+    <h2>8. Explicación completa de <code>app.py</code></h2>
+    <p>Este archivo une todo el sistema. Carga configuración, conecta con el índice vectorial, define el prompt del asistente, construye el pipeline RAG y monta la interfaz de usuario.</p>
+
+    <h3>8.1 Arranque y configuración global</h3>
+    <ul>
+      <li><code>load_dotenv()</code> permite que el comportamiento del sistema cambie mediante un archivo <code>.env</code>.</li>
+      <li><code>PROJECT_ROOT</code> y <code>VECTORSTORE_DIR</code> anclan rutas relativas al directorio del proyecto.</li>
+      <li><code>MANIFEST</code> intenta cargar el manifiesto del índice ya creado.</li>
+      <li><code>OLLAMA_BASE_URL</code>, <code>DEFAULT_LLM_MODEL</code> y <code>DEFAULT_EMBED_MODEL</code> se resuelven combinando entorno, manifiesto y autodetección.</li>
+    </ul>
+
+    <h3>8.2 <code>SYSTEM_PROMPT</code></h3>
+    <p>Es una pieza crítica del comportamiento del sistema. Define restricciones duras:</p>
+    <ul>
+      <li>responder solo con contexto recuperado</li>
+      <li>declarar explícitamente cuando la respuesta no aparece</li>
+      <li>no usar conocimiento externo</li>
+      <li>responder en español por defecto</li>
+      <li>citar fuentes usando la numeración del contexto</li>
+    </ul>
+    <p>Estas reglas son el principal control de alucinaciones a nivel de prompt.</p>
+
+    <h3>8.3 <code>PROMPT</code></h3>
+    <p>Se construye con <code>ChatPromptTemplate.from_messages()</code>. La plantilla combina tres piezas:</p>
+    <ol>
+      <li>mensaje de sistema con el contexto recuperado</li>
+      <li>historial previo de conversación</li>
+      <li>pregunta actual del usuario</li>
+    </ol>
+    <p>Eso permite preguntas de seguimiento sin perder el hilo conversacional.</p>
+
+    <h3>8.4 <code>CUSTOM_CSS</code></h3>
+    <p>Esta cadena CSS personaliza la experiencia visual. No es solo decoración; también organiza la jerarquía visual y mejora legibilidad. Define colores, tipografía, paneles, botones y contenedores de la interfaz. Todo se inyecta al lanzar Gradio.</p>
+
+    <h3>8.5 Estado global</h3>
+    <ul>
+      <li><code>INITIAL_SOURCES</code> es el texto visible antes de la primera búsqueda.</li>
+      <li><code>_VECTORSTORE</code> guarda una referencia singleton al índice Chroma para no recrearlo en cada interacción.</li>
+    </ul>
+
+    <h3>8.6 <code>get_topics()</code></h3>
+    <p>Construye la lista de temas disponibles para el desplegable de filtros. Siempre incluye la opción <code>Todos</code> y, si existe un manifiesto, añade los temas almacenados en él.</p>
+
+    <h3>8.7 <code>get_vectorstore()</code></h3>
+    <p>Implementa carga perezosa del índice. Si ya existe en memoria, lo devuelve directamente. Si no existe y no hay manifiesto, lanza un error guiado. En caso contrario, crea el objeto <code>OllamaEmbeddings</code>, abre la colección Chroma persistente y la cachea en la variable global.</p>
+
+    <h3>8.8 <code>to_langchain_history(history)</code></h3>
+    <p>Convierte la estructura de historial que maneja Gradio en la estructura de mensajes que entiende LangChain. Mapea diccionarios con rol <code>user</code> o <code>assistant</code> a objetos <code>HumanMessage</code> y <code>AIMessage</code>.</p>
+
+    <h3>8.9 <code>retrieve_chunks(question, k_value, score_threshold, topic_filter)</code></h3>
+    <p>Resuelve la recuperación semántica. Toma una consulta, aplica opcionalmente un filtro por tema, llama a <code>similarity_search_with_relevance_scores()</code> y filtra resultados por umbral. La normalización del score a rango 0–1 permite que el umbral de la UI tenga un significado estable.</p>
+
+    <h3>8.10 <code>answer_question(...)</code></h3>
+    <p>Es la función más importante de la app. Gestiona todo el ciclo de una pregunta.</p>
+    <ol>
+      <li>Normaliza el historial y la pregunta.</li>
+      <li>Si la pregunta está vacía, no hace nada y devuelve el estado intacto.</li>
+      <li>Intenta recuperar fragmentos con <code>retrieve_chunks()</code>.</li>
+      <li>Si falla la recuperación, devuelve un mensaje de error a la interfaz.</li>
+      <li>Si no hay fragmentos, responde que no hay contexto suficiente.</li>
+      <li>Si sí hay fragmentos, crea una cadena LangChain compuesta por prompt, modelo y parser.</li>
+      <li>Construye el bloque de contexto con <code>build_context_block()</code>.</li>
+      <li>Invoca el modelo con historial y pregunta.</li>
+      <li>Si el modelo devuelve una respuesta que huele a “no tengo contexto”, el código fuerza una frase estándar para evitar que añada conocimiento externo.</li>
+      <li>Finalmente actualiza el historial y devuelve también el markdown de fuentes y el textbox vacío.</li>
+    </ol>
+    <div class="note"><strong>Punto especialmente importante:</strong> esta función contiene una segunda capa de defensa contra alucinaciones. No se limita a confiar en el prompt; inspecciona la respuesta del modelo y la normaliza si detecta patrones de insuficiencia de contexto.</div>
+
+    <h3>8.11 <code>clear_chat()</code></h3>
+    <p>Reinicia por completo el estado visible del chat: historial, fuentes y caja de texto.</p>
+
+    <h3>8.12 <code>build_status_markdown()</code></h3>
+    <p>Genera el panel de estado de la interfaz. Si no existe un índice, muestra instrucciones. Si sí existe, enseña datos operativos del sistema, como número de chunks, modelo de embeddings y ubicación del manifiesto.</p>
+
+    <h3>8.13 <code>build_demo()</code></h3>
+    <p>Construye toda la UI con la API declarativa de Gradio:</p>
+    <ul>
+      <li>usa <code>Blocks</code> como contenedor principal</li>
+      <li>muestra una cabecera de tipo “hero”</li>
+      <li>crea una columna de chat con <code>Chatbot</code>, <code>State</code>, caja de pregunta y botones</li>
+      <li>crea una segunda columna con el estado, ajustes del retriever y fuentes recuperadas</li>
+      <li>declara explícitamente las entradas y salidas de la función <code>answer_question()</code></li>
+      <li>conecta eventos de submit, click y limpieza</li>
+    </ul>
+    <p>Esta función es importante porque deja la lógica de interfaz bien encapsulada: fuera de ella, el resto del código no necesita saber nada de widgets concretos.</p>
+
+    <h3>8.14 Punto de entrada</h3>
+    <p>El bloque <code>if __name__ == "__main__"</code> lanza la app con cola de eventos y CSS personalizado. Así el archivo sirve tanto como módulo importable como aplicación ejecutable.</p>
+
+    <div class="img-block">
+      <h3>Captura de la interfaz en funcionamiento</h3>
+      <img src="../screenshots/02-respuesta-con-contexto.png" alt="Captura de la app respondiendo con contexto recuperado" />
+      <p class="small">La imagen muestra cómo el código de <code>app.py</code> traduce el índice vectorial y el historial de conversación a una experiencia de usuario usable.</p>
+    </div>
+  </section>
+
+  <section id="decisiones">
+    <h2>9. Decisiones de diseño, límites y mejoras posibles</h2>
+    <h3>9.1 Decisiones acertadas del proyecto</h3>
+    <ul>
+      <li>Separar limpieza, indexación y aplicación en scripts distintos evita acoplamiento innecesario.</li>
+      <li>Centralizar utilidades en <code>rag_utils.py</code> reduce duplicación y mejora mantenibilidad.</li>
+      <li>Persistir Chroma en disco evita reindexar cada vez.</li>
+      <li>Usar un manifiesto de índice permite a la app autoexplicarse y detectar configuración previa.</li>
+      <li>Introducir un filtro por tema añade control al usuario con una heurística barata.</li>
+      <li>Añadir una segunda barrera contra alucinaciones en <code>answer_question()</code> mejora robustez.</li>
+    </ul>
+
+    <h3>9.2 Límites actuales</h3>
+    <ul>
+      <li>La clasificación temática es heurística, no semántica.</li>
+      <li>El score threshold depende del comportamiento de la vector store y del embedding elegido.</li>
+      <li>La memoria conversacional usa el historial visible, no una memoria resumida o jerárquica.</li>
+      <li>No hay tests automáticos en el repositorio actual.</li>
+      <li>La explicación de fuentes es clara, pero no incluye trazabilidad exacta de chunk IDs en la interfaz.</li>
+    </ul>
+
+    <h3>9.3 Mejoras razonables</h3>
+    <ul>
+      <li>añadir tests unitarios para <code>clean_transcript()</code>, <code>infer_topic()</code> y <code>normalize_record()</code></li>
+      <li>permitir persistir conversaciones o exportarlas desde la app</li>
+      <li>añadir re-ranking o compresión contextual antes del LLM</li>
+      <li>mostrar metadatos extra, como número de chunk y score, de forma más visible en la UI</li>
+      <li>incorporar una fase de evaluación automatizada de respuestas RAG</li>
+    </ul>
+  </section>
+
+  <section id="anexo">
+    <h2>10. Anexo: código fuente completo</h2>
+    <p>Para que la explicación sea realmente exhaustiva, el documento incluye a continuación el contenido completo de todos los archivos fuente y de configuración principales del proyecto. Esto permite cruzar la explicación anterior con el código real línea por línea.</p>
+    <section class='appendix-file'><h3>.gitignore</h3><pre class='code'>.venv/
+__pycache__/
+.pytest_cache/
+vectorstore/
+.env
+
+</pre></section>
+<section class='appendix-file'><h3>.env.example</h3><pre class='code'>OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_LLM_MODEL=qwen2.5:latest
+OLLAMA_EMBED_MODEL=nomic-embed-text:latest
+
+</pre></section>
+<section class='appendix-file'><h3>requirements.txt</h3><pre class='code'>chromadb==1.5.8
+datasets==4.8.4
+gradio==6.12.0
+langchain==1.2.15
+langchain-chroma==1.1.0
+langchain-community==0.4.1
+langchain-ollama==1.1.0
+langchain-text-splitters==1.1.2
+python-dotenv==1.2.2
+
+</pre></section>
+<section class='appendix-file'><h3>clean_json.py</h3><pre class='code'>from __future__ import annotations
+
+import argparse
+from collections import Counter
+from pathlib import Path
+
+from datasets import load_dataset
+
+from rag_utils import (
+    DEFAULT_CLEAN_PATH,
+    DEFAULT_DATASET_NAME,
+    DEFAULT_DATASET_SPLIT,
+    DEFAULT_MAX_RECORDS,
+    DEFAULT_MIN_WORDS,
+    choose_balanced_subset,
+    deduplicate_records,
+    load_clean_records,
+    normalize_record,
+    read_json,
+    write_json,
+)
+
+
+def parse_args() -&gt; argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=&quot;Clean Khan Academy transcripts for the Ollama + LangChain RAG project.&quot;
+    )
+    parser.add_argument(&quot;--dataset-name&quot;, default=DEFAULT_DATASET_NAME)
+    parser.add_argument(&quot;--split&quot;, default=DEFAULT_DATASET_SPLIT)
+    parser.add_argument(
+        &quot;--input-json&quot;,
+        type=Path,
+        default=None,
+        help=&quot;Optional local JSON file instead of downloading from Hugging Face.&quot;,
+    )
+    parser.add_argument(&quot;--output&quot;, type=Path, default=DEFAULT_CLEAN_PATH)
+    parser.add_argument(&quot;--max-records&quot;, type=int, default=DEFAULT_MAX_RECORDS)
+    parser.add_argument(&quot;--min-words&quot;, type=int, default=DEFAULT_MIN_WORDS)
+    parser.add_argument(&quot;--seed&quot;, type=int, default=42)
+    return parser.parse_args()
+
+
+def load_source_records(args: argparse.Namespace) -&gt; list[dict]:
+    if args.input_json:
+        payload = read_json(args.input_json)
+        if isinstance(payload, list):
+            return payload
+        if isinstance(payload, dict) and isinstance(payload.get(&quot;train&quot;), list):
+            return payload[&quot;train&quot;]
+        raise ValueError(f&quot;Unsupported JSON structure in {args.input_json}&quot;)
+
+    dataset = load_dataset(args.dataset_name, split=args.split)
+    return list(dataset)
+
+
+def main() -&gt; None:
+    args = parse_args()
+    raw_records = load_source_records(args)
+
+    cleaned_records = []
+    for raw_record in raw_records:
+        normalized = normalize_record(raw_record, min_words=args.min_words)
+        if normalized is not None:
+            cleaned_records.append(normalized)
+
+    deduped_records = deduplicate_records(cleaned_records)
+    selected_records = choose_balanced_subset(
+        deduped_records,
+        max_records=args.max_records,
+        seed=args.seed,
+    )
+    write_json(args.output, selected_records)
+
+    topic_counts = Counter(record[&quot;topic&quot;] for record in selected_records)
+
+    print(f&quot;Raw records loaded: {len(raw_records)}&quot;)
+    print(f&quot;Records after cleaning: {len(cleaned_records)}&quot;)
+    print(f&quot;Records after deduplication: {len(deduped_records)}&quot;)
+    print(f&quot;Records written to {args.output.resolve()}: {len(selected_records)}&quot;)
+    print(&quot;Topic distribution:&quot;)
+    for topic, count in sorted(topic_counts.items()):
+        print(f&quot;  - {topic}: {count}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+
+</pre></section>
+<section class='appendix-file'><h3>index_data.py</h3><pre class='code'>from __future__ import annotations
+
+import argparse
+import time
+from pathlib import Path
+
+from langchain_chroma import Chroma
+from langchain_ollama import OllamaEmbeddings
+
+from rag_utils import (
+    DEFAULT_CHUNK_OVERLAP,
+    DEFAULT_CHUNK_SIZE,
+    DEFAULT_CLEAN_PATH,
+    DEFAULT_COLLECTION_NAME,
+    DEFAULT_MANIFEST_NAME,
+    DEFAULT_OLLAMA_BASE_URL,
+    DEFAULT_VECTORSTORE_DIR,
+    build_documents,
+    ensure_safe_output_dir,
+    load_clean_records,
+    resolve_default_embedding_model,
+    write_json,
+)
+
+
+def parse_args() -&gt; argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=&quot;Build a local Chroma vector store for the Khan Academy RAG project.&quot;
+    )
+    parser.add_argument(&quot;--input&quot;, type=Path, default=DEFAULT_CLEAN_PATH)
+    parser.add_argument(&quot;--persist-dir&quot;, type=Path, default=DEFAULT_VECTORSTORE_DIR)
+    parser.add_argument(&quot;--collection-name&quot;, default=DEFAULT_COLLECTION_NAME)
+    parser.add_argument(&quot;--chunk-size&quot;, type=int, default=DEFAULT_CHUNK_SIZE)
+    parser.add_argument(&quot;--chunk-overlap&quot;, type=int, default=DEFAULT_CHUNK_OVERLAP)
+    parser.add_argument(&quot;--embedding-model&quot;, default=None)
+    parser.add_argument(&quot;--ollama-base-url&quot;, default=DEFAULT_OLLAMA_BASE_URL)
+    return parser.parse_args()
+
+
+def main() -&gt; None:
+    args = parse_args()
+
+    if not args.input.exists():
+        raise SystemExit(
+            f&quot;Clean dataset not found at {args.input.resolve()}. Run clean_json.py first.&quot;
+        )
+
+    records = load_clean_records(args.input)
+    documents = build_documents(
+        records,
+        chunk_size=args.chunk_size,
+        chunk_overlap=args.chunk_overlap,
+    )
+    embedding_model = args.embedding_model or resolve_default_embedding_model()
+
+    ensure_safe_output_dir(args.persist_dir, Path.cwd())
+    embeddings = OllamaEmbeddings(
+        model=embedding_model,
+        base_url=args.ollama_base_url,
+    )
+    vectorstore = Chroma(
+        collection_name=args.collection_name,
+        persist_directory=str(args.persist_dir),
+        embedding_function=embeddings,
+    )
+
+    try:
+        for start in range(0, len(documents), 64):
+            batch = documents[start : start + 64]
+            vectorstore.add_documents(batch, ids=[doc.id for doc in batch])
+    except Exception as exc:
+        raise SystemExit(
+            &quot;Could not create the vector index. Verify that Ollama is running and &quot;
+            &quot;that the embedding model is available. Suggested command: &quot;
+            &quot;`ollama pull nomic-embed-text:latest`&quot;
+        ) from exc
+
+    manifest = {
+        &quot;created_at&quot;: time.strftime(&quot;%Y-%m-%dT%H:%M:%SZ&quot;, time.gmtime()),
+        &quot;collection_name&quot;: args.collection_name,
+        &quot;dataset_path&quot;: str(args.input.resolve()),
+        &quot;record_count&quot;: len(records),
+        &quot;chunk_count&quot;: len(documents),
+        &quot;chunk_size&quot;: args.chunk_size,
+        &quot;chunk_overlap&quot;: args.chunk_overlap,
+        &quot;embedding_model&quot;: embedding_model,
+        &quot;ollama_base_url&quot;: args.ollama_base_url,
+        &quot;topics&quot;: sorted({record[&quot;topic&quot;] for record in records}),
+    }
+    write_json(args.persist_dir / DEFAULT_MANIFEST_NAME, manifest)
+
+    print(f&quot;Clean records indexed: {len(records)}&quot;)
+    print(f&quot;Chunks stored in Chroma: {len(documents)}&quot;)
+    print(f&quot;Embedding model: {embedding_model}&quot;)
+    print(f&quot;Vector store directory: {args.persist_dir.resolve()}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+
+</pre></section>
+<section class='appendix-file'><h3>rag_utils.py</h3><pre class='code'>from __future__ import annotations
+
+import hashlib
+import json
+import os
+import random
+import re
+import shutil
+import subprocess
+from collections import defaultdict
+from pathlib import Path
+from typing import Any, Sequence
+
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+DEFAULT_DATASET_NAME = &quot;iblai/ibl-khanacademy-transcripts&quot;
+DEFAULT_DATASET_SPLIT = &quot;train&quot;
+DEFAULT_MIN_WORDS = 50
+DEFAULT_MAX_RECORDS = 120
+DEFAULT_CHUNK_SIZE = 1200
+DEFAULT_CHUNK_OVERLAP = 200
+DEFAULT_COLLECTION_NAME = &quot;khanacademy_rag&quot;
+DEFAULT_CLEAN_PATH = Path(&quot;train_clean.json&quot;)
+DEFAULT_VECTORSTORE_DIR = Path(&quot;vectorstore&quot;)
+DEFAULT_MANIFEST_NAME = &quot;index_manifest.json&quot;
+DEFAULT_OLLAMA_BASE_URL = &quot;http://127.0.0.1:11434&quot;
+TOPIC_ALL_LABEL = &quot;Todos&quot;
+
+TIMESTAMP_PATTERN = re.compile(
+    r&quot;^\d{2}:\d{2}:\d{2}\.\d{3}\s+--&gt;\s+\d{2}:\d{2}:\d{2}\.\d{3}.*$&quot;
+)
+CUE_INDEX_PATTERN = re.compile(r&quot;^\d+$&quot;)
+TAG_PATTERN = re.compile(r&quot;\[[^\]]+\]&quot;)
+HTML_PATTERN = re.compile(r&quot;&lt;[^&gt;]+&gt;&quot;)
+WHITESPACE_PATTERN = re.compile(r&quot;\s+&quot;)
+SENTENCE_SPLIT_PATTERN = re.compile(r&quot;(?&lt;=[.!?])\s+&quot;)
+
+TOPIC_KEYWORDS = {
+    &quot;Matematicas&quot;: [
+        &quot;algebra&quot;,
+        &quot;geometry&quot;,
+        &quot;trigonometry&quot;,
+        &quot;calculus&quot;,
+        &quot;equation&quot;,
+        &quot;inequality&quot;,
+        &quot;fraction&quot;,
+        &quot;probability&quot;,
+        &quot;statistics&quot;,
+        &quot;ratio&quot;,
+        &quot;exponent&quot;,
+        &quot;linear&quot;,
+        &quot;quadratic&quot;,
+        &quot;function&quot;,
+        &quot;derivative&quot;,
+        &quot;integral&quot;,
+        &quot;triangle&quot;,
+        &quot;circle&quot;,
+        &quot;polynomial&quot;,
+        &quot;graph&quot;,
+        &quot;slope&quot;,
+        &quot;decimal&quot;,
+        &quot;percent&quot;,
+    ],
+    &quot;Ciencia&quot;: [
+        &quot;biology&quot;,
+        &quot;chemistry&quot;,
+        &quot;physics&quot;,
+        &quot;energy&quot;,
+        &quot;fuel&quot;,
+        &quot;fossil&quot;,
+        &quot;cell&quot;,
+        &quot;atom&quot;,
+        &quot;molecule&quot;,
+        &quot;photosynthesis&quot;,
+        &quot;electricity&quot;,
+        &quot;force&quot;,
+        &quot;motion&quot;,
+        &quot;wave&quot;,
+        &quot;climate&quot;,
+        &quot;planet&quot;,
+        &quot;earth&quot;,
+        &quot;ecosystem&quot;,
+        &quot;reaction&quot;,
+        &quot;matter&quot;,
+    ],
+    &quot;Economia y finanzas&quot;: [
+        &quot;economics&quot;,
+        &quot;finance&quot;,
+        &quot;inflation&quot;,
+        &quot;gdp&quot;,
+        &quot;market&quot;,
+        &quot;supply&quot;,
+        &quot;demand&quot;,
+        &quot;trade&quot;,
+        &quot;money&quot;,
+        &quot;bank&quot;,
+        &quot;interest&quot;,
+        &quot;revenue&quot;,
+        &quot;cost&quot;,
+        &quot;profit&quot;,
+        &quot;tax&quot;,
+        &quot;budget&quot;,
+        &quot;investment&quot;,
+        &quot;capital&quot;,
+        &quot;consumer&quot;,
+        &quot;producer&quot;,
+    ],
+    &quot;Computacion&quot;: [
+        &quot;computer&quot;,
+        &quot;programming&quot;,
+        &quot;algorithm&quot;,
+        &quot;python&quot;,
+        &quot;javascript&quot;,
+        &quot;html&quot;,
+        &quot;css&quot;,
+        &quot;sql&quot;,
+        &quot;binary&quot;,
+        &quot;internet&quot;,
+        &quot;database&quot;,
+        &quot;debug&quot;,
+        &quot;coding&quot;,
+        &quot;code&quot;,
+    ],
+    &quot;Lengua y vocabulario&quot;: [
+        &quot;grammar&quot;,
+        &quot;vocabulary&quot;,
+        &quot;sentence&quot;,
+        &quot;verb&quot;,
+        &quot;noun&quot;,
+        &quot;adjective&quot;,
+        &quot;pronoun&quot;,
+        &quot;punctuation&quot;,
+        &quot;reading&quot;,
+        &quot;writing&quot;,
+        &quot;essay&quot;,
+        &quot;poem&quot;,
+        &quot;synonym&quot;,
+        &quot;antonym&quot;,
+        &quot;prefix&quot;,
+        &quot;suffix&quot;,
+        &quot;wordsmith&quot;,
+        &quot;connotation&quot;,
+    ],
+    &quot;Historia y civismo&quot;: [
+        &quot;history&quot;,
+        &quot;government&quot;,
+        &quot;constitution&quot;,
+        &quot;war&quot;,
+        &quot;revolution&quot;,
+        &quot;empire&quot;,
+        &quot;president&quot;,
+        &quot;democracy&quot;,
+        &quot;civil rights&quot;,
+        &quot;colonial&quot;,
+        &quot;ancient&quot;,
+        &quot;medieval&quot;,
+        &quot;state&quot;,
+        &quot;federal&quot;,
+        &quot;citizen&quot;,
+        &quot;geography&quot;,
+    ],
+    &quot;Preparacion de examenes&quot;: [
+        &quot;sat&quot;,
+        &quot;lsat&quot;,
+        &quot;gmat&quot;,
+        &quot;test prep&quot;,
+        &quot;exam&quot;,
+        &quot;passage&quot;,
+        &quot;reading comprehension&quot;,
+        &quot;practice question&quot;,
+    ],
+    &quot;Arte y humanidades&quot;: [
+        &quot;art&quot;,
+        &quot;music&quot;,
+        &quot;painting&quot;,
+        &quot;philosophy&quot;,
+        &quot;theater&quot;,
+        &quot;humanities&quot;,
+        &quot;story&quot;,
+        &quot;narrative&quot;,
+    ],
+}
+
+
+def normalize_whitespace(text: str) -&gt; str:
+    return WHITESPACE_PATTERN.sub(&quot; &quot;, (text or &quot;&quot;).strip())
+
+
+def stable_text_id(*parts: str) -&gt; str:
+    digest = hashlib.sha1(&quot;||&quot;.join(parts).encode(&quot;utf-8&quot;)).hexdigest()
+    return digest[:16]
+
+
+def dedupe_adjacent_sentences(text: str) -&gt; str:
+    sentences = []
+    previous = &quot;&quot;
+    for sentence in SENTENCE_SPLIT_PATTERN.split(text):
+        cleaned = normalize_whitespace(sentence)
+        if not cleaned:
+            continue
+        lowered = cleaned.lower()
+        if lowered == previous:
+            continue
+        sentences.append(cleaned)
+        previous = lowered
+    return &quot; &quot;.join(sentences)
+
+
+def clean_transcript(raw_text: str) -&gt; str:
+    lines = []
+    previous_line = &quot;&quot;
+
+    for raw_line in (raw_text or &quot;&quot;).replace(&quot;\r&quot;, &quot;\n&quot;).split(&quot;\n&quot;):
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.upper() == &quot;WEBVTT&quot;:
+            continue
+        if line.lower().startswith(&quot;kind:&quot;):
+            continue
+        if line.lower().startswith(&quot;language:&quot;):
+            continue
+        if line.startswith(&quot;NOTE&quot;):
+            continue
+        if TIMESTAMP_PATTERN.fullmatch(line):
+            continue
+        if CUE_INDEX_PATTERN.fullmatch(line):
+            continue
+        normalized = normalize_whitespace(line)
+        if normalized.lower() == previous_line:
+            continue
+        lines.append(normalized)
+        previous_line = normalized.lower()
+
+    text = &quot; &quot;.join(lines)
+    text = HTML_PATTERN.sub(&quot; &quot;, text)
+    text = TAG_PATTERN.sub(&quot; &quot;, text)
+    text = text.replace(&quot;&amp;amp;&quot;, &quot;&amp;&quot;)
+    text = text.replace(&quot;&amp;quot;&quot;, &#x27;&quot;&#x27;)
+    text = text.replace(&quot;&amp;#39;&quot;, &quot;&#x27;&quot;)
+    text = re.sub(r&quot;(^|\s)-\s+&quot;, &quot; &quot;, text)
+    text = normalize_whitespace(text)
+    text = dedupe_adjacent_sentences(text)
+    return normalize_whitespace(text)
+
+
+def infer_topic(title: str, content: str) -&gt; str:
+    title_lower = (title or &quot;&quot;).lower()
+    preview = (content or &quot;&quot;)[:1800].lower()
+    blob = f&quot;{title_lower} {preview}&quot;
+
+    scores = {
+        topic: sum(1 for keyword in keywords if keyword in blob)
+        for topic, keywords in TOPIC_KEYWORDS.items()
+    }
+    best_topic = max(scores, key=scores.get)
+    if scores[best_topic] &gt; 0:
+        return best_topic
+
+    short_title = len(title.split()) &lt;= 3
+    language_markers = [&quot;word&quot;, &quot;noun&quot;, &quot;verb&quot;, &quot;adjective&quot;, &quot;synonym&quot;, &quot;meaning&quot;]
+    if short_title and any(marker in blob for marker in language_markers):
+        return &quot;Lengua y vocabulario&quot;
+
+    return &quot;General&quot;
+
+
+def normalize_record(raw_record: dict[str, Any], min_words: int = DEFAULT_MIN_WORDS) -&gt; dict[str, Any] | None:
+    title = normalize_whitespace(str(raw_record.get(&quot;title&quot;, &quot;&quot;)))
+    content = clean_transcript(str(raw_record.get(&quot;content&quot;, &quot;&quot;)))
+    url = normalize_whitespace(
+        str(raw_record.get(&quot;video_url&quot;) or raw_record.get(&quot;url&quot;) or &quot;&quot;)
+    )
+    subtitle_url = normalize_whitespace(str(raw_record.get(&quot;url&quot;, &quot;&quot;)))
+
+    if not title or not content:
+        return None
+
+    word_count = len(content.split())
+    if word_count &lt; min_words:
+        return None
+
+    record_id = stable_text_id(title, url or content[:200])
+    return {
+        &quot;id&quot;: record_id,
+        &quot;title&quot;: title,
+        &quot;content&quot;: content,
+        &quot;url&quot;: url,
+        &quot;subtitle_url&quot;: subtitle_url,
+        &quot;language&quot;: normalize_whitespace(str(raw_record.get(&quot;language&quot;, &quot;en&quot;))) or &quot;en&quot;,
+        &quot;topic&quot;: infer_topic(title, content),
+        &quot;word_count&quot;: word_count,
+    }
+
+
+def deduplicate_records(records: list[dict[str, Any]]) -&gt; list[dict[str, Any]]:
+    deduped = []
+    seen = set()
+
+    for record in records:
+        fingerprint = record[&quot;url&quot;] or stable_text_id(
+            record[&quot;title&quot;], record[&quot;content&quot;][:400]
+        )
+        if fingerprint in seen:
+            continue
+        seen.add(fingerprint)
+        deduped.append(record)
+
+    return deduped
+
+
+def choose_balanced_subset(
+    records: list[dict[str, Any]],
+    max_records: int | None = DEFAULT_MAX_RECORDS,
+    seed: int = 42,
+) -&gt; list[dict[str, Any]]:
+    if not max_records or max_records &lt;= 0 or len(records) &lt;= max_records:
+        return records
+
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        grouped[record[&quot;topic&quot;]].append(record)
+
+    rng = random.Random(seed)
+    for topic_records in grouped.values():
+        rng.shuffle(topic_records)
+
+    ordered_topics = sorted(grouped)
+    selected = []
+
+    while len(selected) &lt; max_records and any(grouped.values()):
+        for topic in ordered_topics:
+            if not grouped[topic]:
+                continue
+            selected.append(grouped[topic].pop())
+            if len(selected) &gt;= max_records:
+                break
+
+    return selected
+
+
+def build_documents(
+    records: list[dict[str, Any]],
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+) -&gt; list[Document]:
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=[&quot;\n\n&quot;, &quot;\n&quot;, &quot;. &quot;, &quot; &quot;, &quot;&quot;],
+    )
+
+    documents = []
+    for record in records:
+        chunks = splitter.split_text(record[&quot;content&quot;])
+        for index, chunk in enumerate(chunks, start=1):
+            documents.append(
+                Document(
+                    id=f&quot;{record[&#x27;id&#x27;]}-{index:03d}&quot;,
+                    page_content=chunk,
+                    metadata={
+                        &quot;record_id&quot;: record[&quot;id&quot;],
+                        &quot;title&quot;: record[&quot;title&quot;],
+                        &quot;url&quot;: record[&quot;url&quot;],
+                        &quot;source&quot;: record[&quot;url&quot;],
+                        &quot;subtitle_url&quot;: record[&quot;subtitle_url&quot;],
+                        &quot;topic&quot;: record[&quot;topic&quot;],
+                        &quot;language&quot;: record[&quot;language&quot;],
+                        &quot;word_count&quot;: record[&quot;word_count&quot;],
+                        &quot;chunk_index&quot;: index,
+                        &quot;chunk_total&quot;: len(chunks),
+                    },
+                )
+            )
+    return documents
+
+
+def write_json(path: Path, payload: Any) -&gt; None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False),
+        encoding=&quot;utf-8&quot;,
+    )
+
+
+def read_json(path: Path) -&gt; Any:
+    return json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+
+
+def load_clean_records(path: Path) -&gt; list[dict[str, Any]]:
+    data = read_json(path)
+    if not isinstance(data, list):
+        raise ValueError(f&quot;Expected a JSON list in {path}&quot;)
+    return data
+
+
+def load_index_manifest(vectorstore_dir: Path) -&gt; dict[str, Any] | None:
+    manifest_path = vectorstore_dir / DEFAULT_MANIFEST_NAME
+    if not manifest_path.exists():
+        return None
+    return read_json(manifest_path)
+
+
+def ensure_safe_output_dir(path: Path, project_root: Path) -&gt; None:
+    resolved_path = path.resolve()
+    resolved_root = project_root.resolve()
+    if resolved_path == resolved_root or not resolved_path.is_relative_to(resolved_root):
+        raise ValueError(f&quot;Unsafe output directory: {resolved_path}&quot;)
+    if resolved_path.exists():
+        shutil.rmtree(resolved_path)
+    resolved_path.mkdir(parents=True, exist_ok=True)
+
+
+def list_installed_ollama_models() -&gt; list[str]:
+    try:
+        result = subprocess.run(
+            [&quot;ollama&quot;, &quot;list&quot;],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding=&quot;utf-8&quot;,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return []
+
+    models = []
+    for line in result.stdout.splitlines()[1:]:
+        parts = line.split()
+        if parts:
+            models.append(parts[0])
+    return models
+
+
+def pick_ollama_model(preferred_names: Sequence[str], fallback: str) -&gt; str:
+    installed = list_installed_ollama_models()
+    installed_lookup = {name.lower(): name for name in installed}
+
+    for candidate in preferred_names:
+        if candidate.lower() in installed_lookup:
+            return installed_lookup[candidate.lower()]
+
+    for candidate in preferred_names:
+        root_name = candidate.replace(&quot;:latest&quot;, &quot;&quot;).lower()
+        for installed_name in installed:
+            if installed_name.lower().startswith(root_name):
+                return installed_name
+
+    return fallback
+
+
+def resolve_default_llm_model() -&gt; str:
+    env_model = os.getenv(&quot;OLLAMA_LLM_MODEL&quot;)
+    if env_model:
+        return env_model
+    return pick_ollama_model(
+        [&quot;llama3.2:latest&quot;, &quot;mistral:latest&quot;, &quot;qwen2.5:latest&quot;],
+        &quot;qwen2.5:latest&quot;,
+    )
+
+
+def resolve_default_embedding_model(manifest_model: str | None = None) -&gt; str:
+    env_model = os.getenv(&quot;OLLAMA_EMBED_MODEL&quot;)
+    if env_model:
+        return env_model
+    if manifest_model:
+        return manifest_model
+    return pick_ollama_model(
+        [&quot;nomic-embed-text:latest&quot;, &quot;nomic-embed-text&quot;],
+        &quot;nomic-embed-text:latest&quot;,
+    )
+
+
+def build_context_block(results: list[tuple[Document, float]]) -&gt; str:
+    blocks = []
+    for index, (doc, score) in enumerate(results, start=1):
+        clipped_score = max(0.0, min(float(score), 1.0))
+        blocks.append(
+            &quot;\n&quot;.join(
+                [
+                    f&quot;[Fuente {index}]&quot;,
+                    f&quot;Titulo: {doc.metadata.get(&#x27;title&#x27;, &#x27;Sin titulo&#x27;)}&quot;,
+                    f&quot;Tema: {doc.metadata.get(&#x27;topic&#x27;, &#x27;General&#x27;)}&quot;,
+                    f&quot;Relevancia: {clipped_score:.3f}&quot;,
+                    f&quot;URL: {doc.metadata.get(&#x27;url&#x27;, &#x27;&#x27;)}&quot;,
+                    &quot;Contenido:&quot;,
+                    doc.page_content,
+                ]
+            )
+        )
+    return &quot;\n\n&quot;.join(blocks)
+
+
+def format_sources_markdown(results: list[tuple[Document, float]]) -&gt; str:
+    if not results:
+        return &quot;No se recuperaron fragmentos con los parametros actuales.&quot;
+
+    entries = []
+    for index, (doc, score) in enumerate(results, start=1):
+        snippet = normalize_whitespace(doc.page_content)[:320]
+        clipped_score = max(0.0, min(float(score), 1.0))
+        entries.append(
+            &quot;\n&quot;.join(
+                [
+                    f&quot;### Fuente {index}&quot;,
+                    f&quot;**Titulo:** {doc.metadata.get(&#x27;title&#x27;, &#x27;Sin titulo&#x27;)}&quot;,
+                    f&quot;**Tema:** {doc.metadata.get(&#x27;topic&#x27;, &#x27;General&#x27;)}&quot;,
+                    f&quot;**Score:** {clipped_score:.3f}&quot;,
+                    f&quot;**URL:** {doc.metadata.get(&#x27;url&#x27;, &#x27;&#x27;)}&quot;,
+                    f&quot;**Extracto:** {snippet}...&quot;,
+                ]
+            )
+        )
+    return &quot;\n\n&quot;.join(entries)
+
+</pre></section>
+<section class='appendix-file'><h3>app.py</h3><pre class='code'>from __future__ import annotations
+
+import os
+from pathlib import Path
+
+import gradio as gr
+from dotenv import load_dotenv
+from langchain_chroma import Chroma
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_ollama import ChatOllama, OllamaEmbeddings
+
+from rag_utils import (
+    DEFAULT_COLLECTION_NAME,
+    DEFAULT_MANIFEST_NAME,
+    DEFAULT_OLLAMA_BASE_URL,
+    DEFAULT_VECTORSTORE_DIR,
+    TOPIC_ALL_LABEL,
+    build_context_block,
+    format_sources_markdown,
+    load_index_manifest,
+    resolve_default_embedding_model,
+    resolve_default_llm_model,
+)
+
+load_dotenv()
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+VECTORSTORE_DIR = PROJECT_ROOT / DEFAULT_VECTORSTORE_DIR
+MANIFEST = load_index_manifest(VECTORSTORE_DIR)
+OLLAMA_BASE_URL = os.getenv(&quot;OLLAMA_BASE_URL&quot;) or (
+    MANIFEST or {}
+).get(&quot;ollama_base_url&quot;, DEFAULT_OLLAMA_BASE_URL)
+DEFAULT_LLM_MODEL = resolve_default_llm_model()
+DEFAULT_EMBED_MODEL = resolve_default_embedding_model(
+    (MANIFEST or {}).get(&quot;embedding_model&quot;)
+)
+
+SYSTEM_PROMPT = &quot;&quot;&quot;
+Eres un asistente educativo especializado en transcripciones de Khan Academy.
+Reglas obligatorias:
+- Responde solo con el contexto recuperado.
+- Si el contexto no basta o la respuesta no aparece de forma explícita, responde exactamente: &quot;No encuentro esa información en los fragmentos recuperados.&quot;
+- Nunca añadas explicaciones generales, ejemplos externos ni conocimiento propio después de indicar que falta contexto.
+- No inventes datos ni uses conocimiento externo.
+- Responde en español salvo que el usuario pida otro idioma.
+- Cuando apoyes una idea en el contexto, cita [Fuente 1], [Fuente 2], etc.
+
+Contexto recuperado:
+{context}
+&quot;&quot;&quot;.strip()
+
+PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (&quot;system&quot;, SYSTEM_PROMPT),
+        MessagesPlaceholder(&quot;history&quot;),
+        (&quot;human&quot;, &quot;{question}&quot;),
+    ]
+)
+
+CUSTOM_CSS = &quot;&quot;&quot;
+:root {
+  --page-bg: linear-gradient(135deg, #f7efe0 0%, #edf4ea 100%);
+  --panel-bg: rgba(255, 252, 246, 0.94);
+  --card-bg: rgba(255, 255, 255, 0.86);
+  --ink: #1f2d1f;
+  --muted: #55645b;
+  --accent: #2d6a4f;
+  --accent-2: #c56b3a;
+  --border: rgba(45, 106, 79, 0.18);
+}
+
+.gradio-container {
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family: Georgia, &quot;Times New Roman&quot;, serif;
+}
+
+#hero-card,
+#side-note,
+.panel-shell {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 18px 36px rgba(31, 45, 31, 0.08);
+}
+
+#hero-card {
+  padding: 18px 22px;
+  margin-bottom: 18px;
+}
+
+#hero-card h1 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+#hero-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+#side-note {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.panel-shell {
+  padding: 12px;
+}
+
+.gr-button-primary {
+  background: linear-gradient(135deg, var(--accent), #4d8f6d) !important;
+  border: none !important;
+}
+
+.gr-button-secondary {
+  border: 1px solid var(--border) !important;
+}
+&quot;&quot;&quot;
+
+INITIAL_SOURCES = &quot;Las fuentes recuperadas aparecerán aquí después de la primera pregunta.&quot;
+
+_VECTORSTORE: Chroma | None = None
+
+
+def get_topics() -&gt; list[str]:
+    topics = [TOPIC_ALL_LABEL]
+    if MANIFEST and MANIFEST.get(&quot;topics&quot;):
+        topics.extend(MANIFEST[&quot;topics&quot;])
+    return topics
+
+
+def get_vectorstore() -&gt; Chroma:
+    global _VECTORSTORE
+
+    if _VECTORSTORE is not None:
+        return _VECTORSTORE
+
+    if MANIFEST is None:
+        raise RuntimeError(
+            &quot;No se encontró un índice vectorial local. Ejecuta `python index_data.py` antes de lanzar la app.&quot;
+        )
+
+    embeddings = OllamaEmbeddings(
+        model=DEFAULT_EMBED_MODEL,
+        base_url=OLLAMA_BASE_URL,
+    )
+    _VECTORSTORE = Chroma(
+        collection_name=MANIFEST.get(&quot;collection_name&quot;, DEFAULT_COLLECTION_NAME),
+        persist_directory=str(VECTORSTORE_DIR),
+        embedding_function=embeddings,
+    )
+    return _VECTORSTORE
+
+
+def to_langchain_history(history: list[dict]) -&gt; list[HumanMessage | AIMessage]:
+    messages: list[HumanMessage | AIMessage] = []
+    for item in history or []:
+        role = item.get(&quot;role&quot;)
+        content = str(item.get(&quot;content&quot;, &quot;&quot;)).strip()
+        if not content:
+            continue
+        if role == &quot;user&quot;:
+            messages.append(HumanMessage(content=content))
+        elif role == &quot;assistant&quot;:
+            messages.append(AIMessage(content=content))
+    return messages
+
+
+def retrieve_chunks(
+    question: str,
+    k_value: int,
+    score_threshold: float,
+    topic_filter: str,
+) -&gt; list[tuple]:
+    vectorstore = get_vectorstore()
+    metadata_filter = None
+    if topic_filter and topic_filter != TOPIC_ALL_LABEL:
+        metadata_filter = {&quot;topic&quot;: topic_filter}
+
+    raw_results = vectorstore.similarity_search_with_relevance_scores(
+        question,
+        k=int(k_value),
+        filter=metadata_filter,
+    )
+
+    filtered_results = []
+    for doc, score in raw_results:
+        normalized_score = max(0.0, min(float(score), 1.0))
+        if normalized_score &gt;= float(score_threshold):
+            filtered_results.append((doc, normalized_score))
+
+    return filtered_results
+
+
+def answer_question(
+    question: str,
+    history: list[dict],
+    k_value: int,
+    score_threshold: float,
+    topic_filter: str,
+    llm_model: str,
+):
+    history = list(history or [])
+    clean_question = (question or &quot;&quot;).strip()
+
+    if not clean_question:
+        return history, history, INITIAL_SOURCES, &quot;&quot;
+
+    try:
+        retrieved = retrieve_chunks(
+            clean_question,
+            k_value=k_value,
+            score_threshold=score_threshold,
+            topic_filter=topic_filter,
+        )
+    except Exception as exc:
+        answer = (
+            &quot;No pude consultar el índice vectorial. Comprueba que el índice local &quot;
+            &quot;existe y que Ollama está activo.\n\n&quot;
+            f&quot;Detalle: {exc}&quot;
+        )
+        updated_history = history + [
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: clean_question},
+            {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: answer},
+        ]
+        return updated_history, updated_history, INITIAL_SOURCES, &quot;&quot;
+
+    if not retrieved:
+        answer = (
+            &quot;No encuentro contexto suficiente en las transcripciones seleccionadas &quot;
+            &quot;para responder con seguridad. Prueba a reformular la pregunta, bajar &quot;
+            &quot;el umbral o cambiar el filtro de tema.&quot;
+        )
+        sources_markdown = &quot;No se recuperaron fragmentos con el umbral actual.&quot;
+    else:
+        model_name = (llm_model or DEFAULT_LLM_MODEL).strip() or DEFAULT_LLM_MODEL
+        chain = PROMPT | ChatOllama(
+            model=model_name,
+            base_url=OLLAMA_BASE_URL,
+            temperature=0.1,
+        ) | StrOutputParser()
+        context_block = build_context_block(retrieved)
+
+        try:
+            answer = chain.invoke(
+                {
+                    &quot;context&quot;: context_block,
+                    &quot;history&quot;: to_langchain_history(history),
+                    &quot;question&quot;: clean_question,
+                }
+            )
+        except Exception as exc:
+            answer = (
+                f&quot;No pude generar la respuesta con el modelo `{model_name}`. &quot;
+                &quot;Verifica que el modelo exista en Ollama.\n\n&quot;
+                f&quot;Detalle: {exc}&quot;
+            )
+
+        lower_answer = answer.lower()
+        insufficient_markers = [
+            &quot;no encuentro&quot;,
+            &quot;no hay suficiente informacion&quot;,
+            &quot;no dispongo de informacion&quot;,
+            &quot;el contexto no contiene&quot;,
+            &quot;the context does not contain&quot;,
+        ]
+        if any(marker in lower_answer for marker in insufficient_markers):
+            answer = &quot;No encuentro esa información en los fragmentos recuperados.&quot;
+
+        sources_markdown = format_sources_markdown(retrieved)
+
+    updated_history = history + [
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: clean_question},
+        {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: answer},
+    ]
+    return updated_history, updated_history, sources_markdown, &quot;&quot;
+
+
+def clear_chat():
+    return [], [], INITIAL_SOURCES, &quot;&quot;
+
+
+def build_status_markdown() -&gt; str:
+    if MANIFEST is None:
+        return (
+            &quot;### Estado del proyecto\n&quot;
+            &quot;- Índice vectorial: pendiente\n&quot;
+            &quot;- Ejecuta `python index_data.py` para crear el índice.\n&quot;
+            f&quot;- Modelo LLM por defecto: `{DEFAULT_LLM_MODEL}`\n&quot;
+            f&quot;- Modelo de embeddings esperado: `{DEFAULT_EMBED_MODEL}`&quot;
+        )
+
+    return (
+        &quot;### Estado del proyecto\n&quot;
+        f&quot;- Chunk count: **{MANIFEST.get(&#x27;chunk_count&#x27;, 0)}**\n&quot;
+        f&quot;- Embeddings: `{MANIFEST.get(&#x27;embedding_model&#x27;, DEFAULT_EMBED_MODEL)}`\n&quot;
+        f&quot;- Ollama base URL: `{OLLAMA_BASE_URL}`\n&quot;
+        f&quot;- Manifest: `{VECTORSTORE_DIR / DEFAULT_MANIFEST_NAME}`&quot;
+    )
+
+
+def build_demo() -&gt; gr.Blocks:
+    with gr.Blocks(
+        title=&quot;Khan Academy RAG con Ollama&quot;,
+        fill_width=True,
+    ) as demo:
+        gr.Markdown(
+            &quot;&quot;&quot;
+&lt;div id=&quot;hero-card&quot;&gt;
+  &lt;h1&gt;Khan Academy RAG Studio&lt;/h1&gt;
+  &lt;p&gt;Consulta transcripciones educativas con Ollama, LangChain y una memoria conversacional simple desde una interfaz local en Gradio.&lt;/p&gt;
+&lt;/div&gt;
+&quot;&quot;&quot;.strip()
+        )
+
+        with gr.Row():
+            with gr.Column(scale=5, elem_classes=&quot;panel-shell&quot;):
+                chatbot = gr.Chatbot(
+                    label=&quot;Conversación&quot;,
+                    height=560,
+                    layout=&quot;bubble&quot;,
+                    placeholder=&quot;Haz una pregunta sobre las transcripciones del dataset limpio.&quot;,
+                )
+                history_state = gr.State([])
+                question_box = gr.Textbox(
+                    label=&quot;Pregunta&quot;,
+                    placeholder=&quot;Ejemplo: What are the inputs of photosynthesis?&quot;,
+                )
+                with gr.Row():
+                    send_button = gr.Button(&quot;Preguntar&quot;, variant=&quot;primary&quot;)
+                    clear_button = gr.Button(&quot;Limpiar historial&quot;, variant=&quot;secondary&quot;)
+
+            with gr.Column(scale=3):
+                gr.Markdown(build_status_markdown(), elem_id=&quot;side-note&quot;)
+                with gr.Accordion(&quot;Ajustes del retriever&quot;, open=True):
+                    k_slider = gr.Slider(
+                        minimum=1,
+                        maximum=10,
+                        value=4,
+                        step=1,
+                        label=&quot;Número de fragmentos (k)&quot;,
+                    )
+                    threshold_slider = gr.Slider(
+                        minimum=0.0,
+                        maximum=1.0,
+                        value=0.2,
+                        step=0.05,
+                        label=&quot;Umbral mínimo de similitud&quot;,
+                    )
+                    topic_dropdown = gr.Dropdown(
+                        choices=get_topics(),
+                        value=TOPIC_ALL_LABEL,
+                        label=&quot;Filtro por tema&quot;,
+                    )
+                    llm_model_box = gr.Textbox(
+                        value=DEFAULT_LLM_MODEL,
+                        label=&quot;Modelo LLM de Ollama&quot;,
+                    )
+
+                with gr.Accordion(&quot;Fuentes recuperadas&quot;, open=True):
+                    sources_markdown = gr.Markdown(INITIAL_SOURCES)
+
+        inputs = [
+            question_box,
+            history_state,
+            k_slider,
+            threshold_slider,
+            topic_dropdown,
+            llm_model_box,
+        ]
+        outputs = [chatbot, history_state, sources_markdown, question_box]
+
+        question_box.submit(answer_question, inputs=inputs, outputs=outputs)
+        send_button.click(answer_question, inputs=inputs, outputs=outputs)
+        clear_button.click(
+            clear_chat,
+            inputs=None,
+            outputs=[chatbot, history_state, sources_markdown, question_box],
+        )
+
+    return demo
+
+
+if __name__ == &quot;__main__&quot;:
+    build_demo().queue().launch(css=CUSTOM_CSS)
+</pre></section>
+<section class='appendix-file'><h3>README.md</h3><pre class='code'># Sistema RAG con Ollama, LangChain y Gradio
+
+Proyecto completo para la tarea de RAG sobre transcripciones de Khan Academy usando:
+
+- limpieza reproducible del dataset
+- embeddings locales con Ollama
+- base de datos vectorial Chroma persistida en disco
+- pipeline RAG con memoria conversacional básica
+- interfaz local con Gradio
+
+## Estructura
+
+- `clean_json.py`: descarga y limpia el dataset, y genera `train_clean.json`
+- `index_data.py`: divide el contenido en chunks, crea embeddings y construye el índice vectorial local
+- `app.py`: interfaz Gradio + pipeline RAG
+- `rag_utils.py`: utilidades compartidas
+- `train_clean.json`: dataset limpio en formato JSON, con un subconjunto balanceado por tema
+- `vectorstore/`: índice persistente generado por `index_data.py`
+- `screenshots/`: capturas reales del proyecto en funcionamiento
+
+## Requisitos
+
+- Python 3.11 recomendado
+- Ollama instalado y en ejecución local
+- Al menos un modelo generativo local en Ollama
+- El modelo de embeddings `nomic-embed-text`
+
+Modelos recomendados:
+
+- `ollama pull nomic-embed-text:latest`
+- `ollama pull llama3.2:latest`
+
+En esta máquina también funciona con `qwen2.5:latest` como LLM local.
+
+## Instalación
+
+### PowerShell
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+## Flujo de ejecución
+
+### 1. Limpiar y preparar el dataset
+
+```powershell
+python clean_json.py --max-records 120
+```
+
+Notas:
+
+- El script descarga `iblai/ibl-khanacademy-transcripts` desde Hugging Face si no indicas `--input-json`.
+- Las transcripciones vacías o demasiado cortas se descartan.
+- Se eliminan cabeceras VTT, timestamps, ruido y espacios sobrantes.
+- El campo `url` final apunta al vídeo (`video_url`) y se conserva la URL original de subtítulos en `subtitle_url`.
+- El campo `topic` se infiere para poder usar el filtro temático en la interfaz.
+
+### 2. Crear el índice vectorial
+
+```powershell
+python index_data.py
+```
+
+Si quieres forzar un modelo concreto para embeddings:
+
+```powershell
+python index_data.py --embedding-model nomic-embed-text:latest
+```
+
+### 3. Lanzar la interfaz Gradio
+
+```powershell
+python app.py
+```
+
+La aplicación incluye:
+
+- chat con historial conversacional
+- control deslizante para `k`
+- control deslizante para el umbral de similitud
+- desplegable para filtrar por tema
+- panel con los fragmentos recuperados
+- botón para limpiar el historial
+
+## Variables de entorno opcionales
+
+Puedes definir estas variables si quieres personalizar los modelos o la URL de Ollama:
+
+- `OLLAMA_BASE_URL`
+- `OLLAMA_LLM_MODEL`
+- `OLLAMA_EMBED_MODEL`
+
+Ejemplo:
+
+```powershell
+$env:OLLAMA_LLM_MODEL=&quot;qwen2.5:latest&quot;
+$env:OLLAMA_EMBED_MODEL=&quot;nomic-embed-text:latest&quot;
+python app.py
+```
+
+## Capturas del proyecto funcionando
+
+### 1. Vista inicial de la interfaz
+
+![Vista inicial de la aplicación](screenshots/01-inicio.png)
+
+### 2. Respuesta con contexto recuperado
+
+Pregunta utilizada: `What are the inputs of photosynthesis?`
+
+![Respuesta basada en contexto recuperado](screenshots/02-respuesta-con-contexto.png)
+
+### 3. Caso sin información suficiente en los fragmentos recuperados
+
+Pregunta utilizada: `What is the difference between fossil fuels and renewable energy?`
+
+![Respuesta cuando el sistema no encuentra suficiente información](screenshots/03-sin-informacion-suficiente.png)
+
+## Comentarios técnicos
+
+- Se usa `Chroma` persistido en la carpeta `vectorstore/` para no reindexar en cada arranque.
+- La memoria conversacional se mantiene a través del historial del chat visible en la interfaz.
+- El prompt obliga al modelo a responder solo con el contexto recuperado y a reconocer cuando no hay información suficiente.
+- El dataset limpio se genera como un subconjunto balanceado por tema para mantener tiempos razonables durante el desarrollo.
+
+## Recursos
+
+- Dataset: https://huggingface.co/datasets/iblai/ibl-khanacademy-transcripts
+- LangChain RAG tutorial: https://python.langchain.com/docs/tutorials/rag/
+- Gradio docs: https://www.gradio.app/docs/
+- Chroma docs: https://docs.trychroma.com/
+</pre></section>
+  </section>
+</main>
+</body>
+</html>

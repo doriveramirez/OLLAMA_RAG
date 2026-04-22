@@ -1,0 +1,86 @@
+Repositorio del proyecto para acceder a todos los archivos:
+https://github.com/doriveramirez/OLLAMA_RAG
+
+ARCHIVOS IMPORTANTES PARA CORREGIR EL PROYECTO OLLAMA_RAG
+
+Documento de apoyo recomendado para empezar:
+
+- Explicacion_completa_codigo_OLLAMA_RAG.pdf
+  Archivo explicativo extenso con el funcionamiento completo del proyecto y del codigo.
+  Es recomendable abrirlo al principio para entender rapidamente la arquitectura general
+  antes de revisar los scripts uno por uno.
+
+Orden recomendado de revision:
+
+1. Explicacion_completa_codigo_OLLAMA_RAG.pdf
+   - Documento de apoyo completo con la explicacion detallada del codigo.
+   - Resume la arquitectura, el flujo de ejecucion y el papel de cada archivo.
+   - Muy util para situarse antes de corregir tecnicamente el proyecto.
+
+2. README.md
+   - Archivo principal para entender la instalacion, la ejecucion y la estructura del proyecto.
+   - Relacionado con el criterio de "Documentacion y codigo".
+
+3. clean_json.py
+   - Script de limpieza pedido explicitamente en la tarea.
+   - Aqui se ve como se descarga/lee el dataset, se filtran registros y se genera el JSON limpio.
+   - Relacionado con el criterio de "Limpieza del dataset".
+
+4. rag_utils.py
+   - Archivo clave porque contiene la logica real de limpieza, clasificacion por temas, deduplicacion,
+     seleccion balanceada de registros, chunking y utilidades compartidas.
+   - Es el mejor archivo para revisar el comportamiento tecnico de fondo del sistema.
+   - Relacionado con "Limpieza del dataset", "Criterios de seleccion del retriever" y parte del pipeline RAG.
+
+5. train_clean.json
+   - Dataset limpio generado a partir del original.
+   - Sirve para comprobar el resultado final de la limpieza exigida en la tarea.
+   - Relacionado con el entregable "Dataset limpio".
+
+6. index_data.py
+   - Script de indexacion pedido explicitamente en la tarea.
+   - Aqui se ve como se crean los embeddings con Ollama y como se indexa el contenido en Chroma.
+   - Relacionado con "Indexacion en base de datos vectorial" y parte de la calidad del RAG.
+
+7. app.py
+   - Archivo principal de la aplicacion.
+   - Incluye el pipeline RAG, el retriever, la memoria conversacional, el prompt y la interfaz Gradio.
+   - Es el archivo mas importante para evaluar:
+     * calidad del RAG
+     * criterios de seleccion del retriever
+     * memoria de conversacion
+     * interfaz Gradio
+
+8. requirements.txt
+   - Dependencias necesarias para ejecutar el proyecto.
+   - Relacionado con el entregable de dependencias y la reproducibilidad.
+
+9. screenshots/01-inicio.png
+10. screenshots/02-respuesta-con-contexto.png
+11. screenshots/03-sin-informacion-suficiente.png
+   - Evidencias visuales de la aplicacion funcionando.
+   - Ayudan a revisar rapidamente la interfaz y el comportamiento del sistema sin tener que ejecutarlo primero.
+
+12. Explicacion_completa_codigo_OLLAMA_RAG.html
+   - Version HTML del documento explicativo completo.
+   - Puede ser util si se prefiere revisar el contenido desde navegador.
+
+Resumen rapido por entregables pedidos en la tarea:
+
+- Script de limpieza: clean_json.py
+- Script de indexacion: index_data.py
+- Aplicacion principal: app.py
+- Dependencias: requirements.txt
+- Dataset limpio: train_clean.json
+- Documentacion: README.md
+
+Si el profesor solo quiere abrir lo imprescindible para corregir la tarea, los archivos minimos son:
+
+- Explicacion_completa_codigo_OLLAMA_RAG.pdf
+- README.md
+- clean_json.py
+- rag_utils.py
+- index_data.py
+- app.py
+- train_clean.json
+- requirements.txt
